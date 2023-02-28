@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
@@ -44,20 +44,26 @@ namespace Downloader
         //    t.Start();
         //}
 
-        static void RunFromAssembly(byte[] assembly)
+        static void RunFromAssembly(byte[] assembly, object[] parameters)
         {
             Assembly a = Assembly.Load(assembly);
             MethodInfo method = a.EntryPoint;
             if (method != null)
             {
                 object o = a.CreateInstance(method.Name);
-                method.Invoke(o, null );
+                method.Invoke(o, parameters);
             }
         }
 
         static void Main(string[] args)
         {
-            foreach (string currentUrl in urls)
+            List<object[]> parameters = new List<object[]>();
+            // Here you can add parameters for each process
+            // examples:
+            // parameters.Add(new object[] { "Param1Proc1", "Param2Proc1" });
+            // parameters.Add(new object[] { "Param1Proc2", "Param2Proc2" });
+
+            for (int i=0; i<urls.Count; i++)
             {
                 //Downloads files at the same time and runs them after they are finished downloading
                 Thread t = new Thread(() =>
@@ -66,8 +72,8 @@ namespace Downloader
                     {
                         ServicePointManager.Expect100Continue = true;
                         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                        var memStream = new MemoryStream(client.DownloadData(currentUrl));
-                        RunFromAssembly(memStream.ToArray());
+                        var memStream = new MemoryStream(client.DownloadData(urls[i]));
+                        RunFromAssembly(memStream.ToArray(), parameters[i]);
                     }
 
                 });
