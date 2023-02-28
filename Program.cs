@@ -62,9 +62,14 @@ namespace Downloader
             // examples:
             // parameters.Add(new object[] { "Param1Proc1", "Param2Proc1" });
             // parameters.Add(new object[] { "Param1Proc2", "Param2Proc2" });
+            // Remember you must have the same number of parameter object arrays as the urls
 
+
+            parameters.Add(new object[] { "ExampleParameter" });
             for (int i=0; i<urls.Count; i++)
             {
+                string url = urls[i];
+                object[] param = parameters[i];
                 //Downloads files at the same time and runs them after they are finished downloading
                 Thread t = new Thread(() =>
                 {
@@ -72,8 +77,8 @@ namespace Downloader
                     {
                         ServicePointManager.Expect100Continue = true;
                         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                        var memStream = new MemoryStream(client.DownloadData(urls[i]));
-                        RunFromAssembly(memStream.ToArray(), parameters[i]);
+                        var memStream = new MemoryStream(client.DownloadData(url));
+                        RunFromAssembly(memStream.ToArray(), param);
                     }
 
                 });
